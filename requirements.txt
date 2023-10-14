@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+altair==4.2.0
+pandas==2.0.3
+streamlit==1.13.0
