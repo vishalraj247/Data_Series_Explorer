@@ -2,7 +2,7 @@ import streamlit as st
 
 from tab_date.logics import DateColumn
 
-def display_tab_date_content(file_path=None, df=None):
+def display_tab_date_content(file_path):
     """
     --------------------
     Description
@@ -27,4 +27,23 @@ def display_tab_date_content(file_path=None, df=None):
     -> None
 
     """
+
+    dataset2 = DateColumn(file_path)
+    dataset2.find_date_cols()
+    
+    column_selected = st.selectbox('Which datetime column do you want to explore', dataset2.cols_list)
+    dataset2.set_data(column_selected)
+
+    # Display datetime stats
+    with st.expander("Date Column", expanded=True):
+        st.table(dataset2.get_summary())
+
+    # Display bar chart
+    with st.expander("Bar Chart", expanded=True):
+        st.altair_chart(dataset2.barchart, use_container_width=True)
+
+    # Display top 20 dates
+    with st.expander("Most Frequent Values", expanded=True):
+        st.dataframe(dataset2.frequent)
+
     
