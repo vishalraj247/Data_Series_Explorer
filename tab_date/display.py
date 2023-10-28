@@ -1,5 +1,4 @@
 import streamlit as st
-
 from tab_date.logics import DateColumn
 
 def display_tab_date_content(file_path):

@@ -403,7 +403,7 @@ class DateColumn:
         total_count = df2['occurrance'].sum()
         df2['percentage'] = df2['occurrance'] / total_count
         df2 = df2.sort_values(by='percentage', ascending=False)
-        self.frequent = df2.head(20)
+        self.frequent = df2.head(end)
         
 
     def get_summary(self):
