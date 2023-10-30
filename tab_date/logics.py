@@ -76,12 +76,15 @@ class DateColumn:
             if data_df[col].dtype == 'object':
                 #list_of_dt_txt_columns.append(col)
                 try:
-                    data_df[col] = pd.to_datetime(data_df[col])
+                    data_df[col] = pd.to_datetime(data_df[col], format='mixed')
                     list_of_dt_txt_columns.append(col)
-                except ValueError:
+                except ValueError as error:
+                    error_message = f"Error: {error}"
+                    print(error_message)
                     pass
         self.df = data_df
         self.cols_list = list_of_dt_txt_columns
+        print(self.cols_list)
 
 
     def set_data(self, col_name):
@@ -105,7 +108,7 @@ class DateColumn:
         -> None
         """
         self.serie = self.df[col_name]
-        self.convert_serie_to_date()
+        #self.convert_serie_to_date()
         self.set_unique()
         self.set_missing()
         self.set_min()
