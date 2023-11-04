@@ -165,6 +165,10 @@ class DateColumn:
         -> (bool): Flag stating if the serie is empty or not
 
         """
+        if self.serie is None or self.serie.empty:
+            return True
+        else:
+            return False
         
 
     def set_unique(self):
