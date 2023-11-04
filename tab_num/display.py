@@ -9,7 +9,9 @@ def display_tab_num_content(file_path=None, df=None):
     
     if selected_num_col:
         num_col_instance.set_data(selected_num_col)
-        with st.expander("Column Summary"):
+        with st.expander("Numeric Column", expanded=True):
             st.table(num_col_instance.get_summary())
+        with st.expander("Histogram", expanded=True):
             st.altair_chart(num_col_instance.histogram)
+        with st.expander("Most Frequent Values", expanded=True):
             st.write(num_col_instance.frequent)
