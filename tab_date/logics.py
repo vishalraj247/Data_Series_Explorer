@@ -309,6 +309,7 @@ class DateColumn:
         except:
             self.n_weekend = 'N/A'
 
+
     def set_weekday(self):
         """
         --------------------
@@ -392,6 +393,9 @@ class DateColumn:
         except:
             self.n_empty_1900 = 'N/A'
 
+        if self.is_of_valid_datetime() == False:
+            self.n_empty_1900 = 'N/A'
+
     def set_empty_1970(self):
         """
         --------------------
@@ -417,6 +421,9 @@ class DateColumn:
                 df = pd.DataFrame({'date_column': self.serie})
                 self.n_empty_1970 = len(df[df['date_column'] == pd.to_datetime('1970-01-01')])
         except:
+            self.n_empty_1970 = 'N/A'
+
+        if self.is_of_valid_datetime() == False:
             self.n_empty_1970 = 'N/A'
 
     def set_barchart(self):  
