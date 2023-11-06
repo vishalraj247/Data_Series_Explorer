@@ -46,8 +46,17 @@ class Dataset:
         self.set_table()
 
     def set_df(self):
-        if self.is_df_none():
+        try:
             self.df = pd.read_csv(self.file_path)
+            self.set_columns()
+            self.set_dimensions()
+            self.set_duplicates()
+            self.set_missing()
+            self.set_numeric()
+            self.set_text()
+            self.set_table()
+        except pd.errors.EmptyDataError:
+            self.df = pd.DataFrame()
 
     def is_df_none(self):
         return self.df is None or self.df.empty
