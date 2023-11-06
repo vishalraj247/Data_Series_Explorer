@@ -20,6 +20,3 @@ def display_tab_text_content(file_path=None, df=None):
 
             st.subheader('Most Frequent Values')
             st.table(text_column.frequent)
-
-
-st.title('Text Column Analysis')
