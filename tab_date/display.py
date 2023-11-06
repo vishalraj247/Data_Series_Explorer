@@ -33,6 +33,9 @@ def display_tab_date_content(file_path):
     column_selected = st.selectbox('Which datetime column do you want to explore', dataset2.cols_list)
     dataset2.set_data(column_selected)
 
+    if dataset2.is_of_valid_datetime() == False:
+        st.warning(f'WARNING: the selected column "{column_selected}" does not appear to be of datetime data type, as a result, some statistics may not be available. These statistics have been flagged as "N/A"', icon="⚠️")
+
     # Display datetime stats
     with st.expander("Date Column", expanded=True):
         st.table(dataset2.get_summary())

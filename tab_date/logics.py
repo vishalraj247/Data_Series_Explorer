@@ -74,17 +74,21 @@ class DateColumn:
         list_of_dt_txt_columns = []
         for col in data_df.columns:
             if data_df[col].dtype == 'object':
-                #list_of_dt_txt_columns.append(col)
                 try:
                     data_df[col] = pd.to_datetime(data_df[col], format='mixed')
                     list_of_dt_txt_columns.append(col)
                 except ValueError as error:
-                    error_message = f"Error: {error}"
-                    print(error_message)
                     pass
+        
+        if len(list_of_dt_txt_columns) == 0:
+            for col in data_df.columns:
+                if data_df[col].dtype == 'object':
+                    print(col)
+                    list_of_dt_txt_columns.append(col)
+
         self.df = data_df
         self.cols_list = list_of_dt_txt_columns
-        print(self.cols_list)
+
 
 
     def set_data(self, col_name):
@@ -108,7 +112,11 @@ class DateColumn:
         -> None
         """
         self.serie = self.df[col_name]
-        #self.convert_serie_to_date()
+        self.convert_serie_to_date()
+
+        if self.is_serie_none():
+            self.serie = self.df[col_name]
+
         self.set_unique()
         self.set_missing()
         self.set_min()
@@ -120,6 +128,14 @@ class DateColumn:
         self.set_empty_1970()
         self.set_barchart()
         self.set_frequent()
+
+
+    def is_of_valid_datetime(self):
+        try:
+            res = pd.to_datetime(self.serie)
+            return True
+        except ValueError:
+            return False
 
 
     def convert_serie_to_date(self):
@@ -143,7 +159,7 @@ class DateColumn:
         try:
             self.serie = pd.to_datetime(self.serie)
         except ValueError:
-            pass
+            self.serie = None
 
         
 
@@ -231,7 +247,13 @@ class DateColumn:
         -> None
 
         """
-        self.col_min = self.serie.min()
+        try:
+            if self.is_serie_none():
+                self.col_min = 'N/A'
+            else:
+                self.col_min = self.serie.min()
+        except:
+            self.col_min = 'N/A'
 
     def set_max(self):
         """
@@ -251,7 +273,13 @@ class DateColumn:
         -> None
 
         """
-        self.col_max = self.serie.max()
+        try:
+            if self.is_serie_none():
+                self.col_max = 'N/A'
+            else:
+                self.col_max = self.serie.max()
+        except:
+            self.col_max = 'N/A'
 
     def set_weekend(self):
         """
@@ -271,9 +299,15 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date_column': self.serie})
-        df['day_of_week'] = df['date_column'].dt.dayofweek
-        self.n_weekend  = len(df[df['day_of_week'].isin([5, 6])])
+        try:
+            if self.is_serie_none():
+                self.n_weekend = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                df['day_of_week'] = df['date_column'].dt.dayofweek
+                self.n_weekend  = len(df[df['day_of_week'].isin([5, 6])])
+        except:
+            self.n_weekend = 'N/A'
 
     def set_weekday(self):
         """
@@ -293,10 +327,15 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date_column': self.serie})
-        df['day_of_week'] = df['date_column'].dt.dayofweek
-        self.n_weekday = len(df[df['day_of_week'].isin([0, 1, 2, 3, 4])])
-        
+        try:
+            if self.is_serie_none():
+                self.n_weekday = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                df['day_of_week'] = df['date_column'].dt.dayofweek
+                self.n_weekday = len(df[df['day_of_week'].isin([0, 1, 2, 3, 4])])
+        except:
+            self.n_weekday = 'N/A'
 
     def set_future(self):
         """
@@ -316,8 +355,14 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date_column': self.serie})
-        self.n_future = len(df[df['date_column'] > datetime.now()])
+        try:
+            if self.is_serie_none():
+                self.n_future = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_future = len(df[df['date_column'] > datetime.now()])
+        except:
+             self.n_future = 'N/A'
         
     
     def set_empty_1900(self):
@@ -338,9 +383,14 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date_column': self.serie})
-        self.n_empty_1900 = len(df[df['date_column'] == pd.to_datetime('1900-01-01')])
-        
+        try:
+            if self.is_serie_none():
+                self.n_empty_1900 = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_empty_1900 = len(df[df['date_column'] == pd.to_datetime('1900-01-01')])
+        except:
+            self.n_empty_1900 = 'N/A'
 
     def set_empty_1970(self):
         """
@@ -360,8 +410,14 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date_column': self.serie})
-        self.n_empty_1970 = len(df[df['date_column'] == pd.to_datetime('1970-01-01')])
+        try:
+            if self.is_serie_none():
+                self.n_empty_1970 = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_empty_1970 = len(df[df['date_column'] == pd.to_datetime('1970-01-01')])
+        except:
+            self.n_empty_1970 = 'N/A'
 
     def set_barchart(self):  
         """
@@ -381,9 +437,14 @@ class DateColumn:
         -> None
 
         """
-        df = pd.DataFrame({'date': self.serie})
-        df2 = df.groupby('date').size().reset_index(name='number_of_records')
-        self.barchart = alt.Chart(df2).mark_bar().encode(x="date", y="number_of_records")
+        axis = "date"
+        if self.is_of_valid_datetime() == False:
+            axis = "value"
+
+        df = pd.DataFrame({axis: self.serie})
+        df2 = df.groupby(axis).size().reset_index(name='number_of_records')
+        self.barchart = alt.Chart(df2).mark_bar().encode(x=axis, y="number_of_records")
+
         
       
     def set_frequent(self, end=20):
