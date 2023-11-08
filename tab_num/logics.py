@@ -140,6 +140,9 @@ class NumericColumn:
             value_counts.columns = ['value', 'occurrence']
             value_counts['percentage'] = (value_counts['occurrence'] / len(self.serie)) * 100
             
+            # Check if the value_counts DataFrame is empty before styling
+            self.frequent_empty = value_counts.empty
+            
             # Using pandas' Styler to format the percentage column
             self.frequent = value_counts.style.format({
                 'percentage': '{:,.2f}%'
@@ -149,7 +152,7 @@ class NumericColumn:
         data = {
             'Description': ['Number of Unique Values', 'Number of Rows with Missing Values', 'Number of Rows with 0', 'Number of Rows with Negative Values',
                             'Average value', 'Standard Deviation Value', 'Minimum Value', 'Maximum Value', 'Median Value'],
-            'Value': [self.n_unique, self.n_missing, self.n_zeros, self.n_negatives, self.col_mean, 
-                      self.col_std, self.col_min, self.col_max, self.col_median]
+            'Value': [self.n_unique, self.n_missing, self.n_zeros, self.n_negatives, "{:.2f}".format(self.col_mean), 
+                            "{:.2f}".format(self.col_std), self.col_min, self.col_max, "{:.2f}".format(self.col_median)]
         }
         return pd.DataFrame(data)
