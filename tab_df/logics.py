@@ -46,17 +46,31 @@ class Dataset:
         self.set_table()
 
     def set_df(self):
+        # If the DataFrame is already set or not empty, we don't need to read the file again
+        if not self.df is None and not self.df.empty:
+            return
+
+        # Try to read the uploaded file directly using pandas
         try:
-            self.df = pd.read_csv(self.file_path)
-            self.set_columns()
-            self.set_dimensions()
-            self.set_duplicates()
-            self.set_missing()
-            self.set_numeric()
-            self.set_text()
-            self.set_table()
+            # Check if file_path is an UploadedFile object
+            if hasattr(self.file_path, "read"):
+                # Read the file from the buffer
+                self.df = pd.read_csv(self.file_path)
+            else:
+                # It's a file path; proceed with the usual method
+                self.df = pd.read_csv(self.file_path)
         except pd.errors.EmptyDataError:
+            # If the CSV is empty, set the DataFrame to None or an empty DataFrame
             self.df = pd.DataFrame()
+
+        # Update the rest of the data
+        self.set_columns()
+        self.set_dimensions()
+        self.set_duplicates()
+        self.set_missing()
+        self.set_numeric()
+        self.set_text()
+        self.set_table()
 
     def is_df_none(self):
         return self.df is None or self.df.empty
