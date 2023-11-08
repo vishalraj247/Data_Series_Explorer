@@ -25,16 +25,21 @@ class TextColumn:
             self.file_path.seek(0)
             data = pd.read_csv(self.file_path)
 
-        list_of_text_columns = []
-        for col in data.columns:
-            try:
-                if data[col].dtype == 'object':
-                    list_of_text_columns.append(col)
-            except Exception as e:
-                print(f"Error processing column {col}: {str(e)}")
+            list_of_text_columns = []
+            for col in data.columns:
+                try:
+                    if data[col].dtype == 'object':
+                        list_of_text_columns.append(col)
+                except Exception as e:
+                    print(f"Error processing column {col}: {str(e)}")
 
-        self.df = data
-        self.cols_list = list_of_text_columns
+            if list_of_text_columns:
+                self.df = data
+                self.cols_list = list_of_text_columns
+            else:
+                print('No Text Columns found')
+        else:
+            print('No file path provided')
 
     def set_data(self, col_name):
         if col_name in self.cols_list:
@@ -65,10 +70,14 @@ class TextColumn:
         self.n_unique = self.serie.nunique()
 
     def set_missing(self):
-        self.n_missing = self.serie.isnull().sum()
+        if not self.is_serie_none():
+            self.n_missing = self.serie.isnull().sum()
 
     def set_empty(self):
-        self.n_empty = len(self.serie[self.serie == ''])
+        if self.serie is not None:
+            self.n_empty = len(self.serie[self.serie.str.strip() == ''])
+        else:
+            self.n_empty = 0
 
     def set_mode(self):
         self.n_mode = self.serie.mode().iloc[0]
@@ -77,10 +86,12 @@ class TextColumn:
         self.n_space = len(self.serie[self.serie.str.isspace()])
 
     def set_lowercase(self):
-        self.n_lower = len(self.serie[self.serie.str.islower()])
+        if not self.is_serie_none():
+            self.n_lower = self.serie[self.serie.str.islower()].count()
 
     def set_uppercase(self):
-        self.n_upper = len(self.serie[self.serie.str.isupper()])
+        if not self.is_serie_none():
+            self.n_upper = self.serie[self.serie.str.isupper()].count()
 
     def set_alphabet(self):
         self.n_alpha = len(self.serie[self.serie.str.isalpha()])
@@ -97,6 +108,7 @@ class TextColumn:
         )
 
     def set_frequent(self, end=20):
+        self.serie.dropna()
         value_counts = self.serie.value_counts().reset_index()
         value_counts.columns = ['value', 'occurrence']
         total = len(self.serie)
@@ -105,9 +117,9 @@ class TextColumn:
 
     def get_summary(self):
         summary_df = pd.DataFrame({
-            'Description': ['Number of Unique Values', 'Number of Missing Values', 'Number of Empty Strings',
-                            'Mode Value', 'Number of Whitespace Strings', 'Number of Lowercase Strings',
-                            'Number of Uppercase Strings', 'Number of Alphabetic Strings', 'Number of Digit Strings'],
+            'Description': ['Number of Unique Values', 'Number of Rows with Missing Values', 'Number of Empty Rows',
+                            'Mode Value', 'Number of Rows with Only Whitespace', 'Number of Rows with only Lowercases',
+                            'Number of Rows with Only Uppercases', 'Number of Rows with Only Alphabet', 'Number of Rows with Only Digit'],
             'Value': [self.n_unique, self.n_missing, self.n_empty, self.n_mode, self.n_space, self.n_lower,
                       self.n_upper, self.n_alpha, self.n_digit]
         })
