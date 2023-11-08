@@ -71,7 +71,9 @@ class TextColumn:
 
     def set_missing(self):
         if not self.is_serie_none():
-            self.n_missing = self.serie.isnull().sum()
+            n_missing_nan = self.serie.isna().sum()
+            n_missing_nan_str = self.serie.apply(lambda x: x == 'nan').sum()
+            self.n_missing = n_missing_nan + n_missing_nan_str
 
     def set_empty(self):
         if self.serie is not None:
@@ -102,10 +104,13 @@ class TextColumn:
     def set_barchart(self):
         value_counts = self.serie.value_counts().reset_index()
         value_counts.columns = ['value', 'occurrence']
+        zoom = alt.selection_interval(bind='scales', encodings=['x'])
         self.barchart = alt.Chart(value_counts).mark_bar().encode(
             y='occurrence:Q',
             x=alt.Y('value:N', sort='-x')
-        )
+        ).properties(
+            width=600  # Adjust the width as needed
+        ).add_selection(zoom).transform_filter(zoom)
 
     def set_frequent(self, end=20):
         self.serie.dropna()
@@ -119,7 +124,8 @@ class TextColumn:
         summary_df = pd.DataFrame({
             'Description': ['Number of Unique Values', 'Number of Rows with Missing Values', 'Number of Empty Rows',
                             'Mode Value', 'Number of Rows with Only Whitespace', 'Number of Rows with only Lowercases',
-                            'Number of Rows with Only Uppercases', 'Number of Rows with Only Alphabet', 'Number of Rows with Only Digit'],
+                            'Number of Rows with Only Uppercases', 'Number of Rows with Only Alphabet',
+                            'Number of Rows with Only Digit'],
             'Value': [self.n_unique, self.n_missing, self.n_empty, self.n_mode, self.n_space, self.n_lower,
                       self.n_upper, self.n_alpha, self.n_digit]
         })
