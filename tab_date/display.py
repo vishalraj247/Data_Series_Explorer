@@ -33,19 +33,23 @@ def display_tab_date_content(file_path):
     column_selected = st.selectbox('Which datetime column do you want to explore', dataset2.cols_list)
     dataset2.set_data(column_selected)
 
-    if dataset2.is_of_valid_datetime() == False:
-        st.warning(f'WARNING: the selected column "{column_selected}" does not appear to be of datetime data type, as a result, some statistics may not be available. These statistics have been flagged as "N/A"', icon="⚠️")
+    if dataset2.cols_list != None:
 
-    # Display datetime stats
-    with st.expander("Date Column", expanded=True):
-        st.table(dataset2.get_summary())
+        if dataset2.is_of_valid_datetime() == False:
+            st.warning(f'WARNING: the selected column "{column_selected}" does not appear to be of datetime data type, as a result, some statistics may not be available. These statistics have been flagged as "N/A"', icon="⚠️")
 
-    # Display bar chart
-    with st.expander("Bar Chart", expanded=True):
-        st.altair_chart(dataset2.barchart, use_container_width=True)
+        # Display datetime stats
+        with st.expander("Date Column", expanded=True):
+            st.table(dataset2.get_summary())
 
-    # Display top 20 dates
-    with st.expander("Most Frequent Values", expanded=True):
-        st.dataframe(dataset2.frequent)
+        # Display bar chart
+        with st.expander("Bar Chart", expanded=True):
+            st.altair_chart(dataset2.barchart, use_container_width=True)
+
+        # Display top 20 dates
+        with st.expander("Most Frequent Values", expanded=True):
+            st.dataframe(dataset2.frequent)
+    else:
+        st.warning(f'ERROR: No valid datetime or object column found in dataset', icon="⚠️")
 
     

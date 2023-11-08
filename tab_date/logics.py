@@ -83,8 +83,8 @@ class DateColumn:
         if len(list_of_dt_txt_columns) == 0:
             for col in data_df.columns:
                 if data_df[col].dtype == 'object':
-                    print(col)
                     list_of_dt_txt_columns.append(col)
+
 
         self.df = data_df
         self.cols_list = list_of_dt_txt_columns
@@ -111,23 +111,26 @@ class DateColumn:
         --------------------
         -> None
         """
-        self.serie = self.df[col_name]
-        self.convert_serie_to_date()
-
-        if self.is_serie_none():
+        try:
             self.serie = self.df[col_name]
+            self.convert_serie_to_date()
 
-        self.set_unique()
-        self.set_missing()
-        self.set_min()
-        self.set_max()
-        self.set_weekend()
-        self.set_weekday()
-        self.set_future()
-        self.set_empty_1900()
-        self.set_empty_1970()
-        self.set_barchart()
-        self.set_frequent()
+            if self.is_serie_none():
+                self.serie = self.df[col_name]
+
+            self.set_unique()
+            self.set_missing()
+            self.set_min()
+            self.set_max()
+            self.set_weekend()
+            self.set_weekday()
+            self.set_future()
+            self.set_empty_1900()
+            self.set_empty_1970()
+            self.set_barchart()
+            self.set_frequent()
+        except:
+            self.cols_list = None
 
 
     def is_of_valid_datetime(self):
