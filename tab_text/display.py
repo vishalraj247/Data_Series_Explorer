@@ -1,7 +1,7 @@
 import streamlit as st
+import pandas as pd
 
-from tab_text.logics import TextColumn
-
+from text.logics import TextColumn
 def display_tab_text_content(file_path=None, df=None):
     """
     --------------------

@@ -48,8 +48,16 @@ if st.session_state.file_path is not None:
     with tab_df:
         display_tab_df_content(file_path=st.session_state.file_path)
     with tab_num:
+<<<<<<< HEAD
+        display_tab_num_content(file_path=st.session_state.file_path)
+    with tab_text:
+        display_tab_text_content(file_path=st.session_state.file_path)
+    with tab_date:
+        display_tab_date_content(file_path=st.session_state.file_path)
+=======
         display_tab_num_content(df=st.session_state.dataset.df)
     with tab_text:
         display_tab_text_content(df=st.session_state.dataset.df)
     with tab_date:
         display_tab_date_content(df=st.session_state.dataset.df)
+>>>>>>> parent of 6cd2c6b (Create Tabs Container and First Tab)

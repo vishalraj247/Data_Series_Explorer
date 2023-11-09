@@ -106,7 +106,6 @@ class TextColumn:
         -> None
 
         """
-        
 
     def is_serie_none(self):
         """
@@ -126,7 +125,6 @@ class TextColumn:
         -> (bool): Flag stating if the serie is empty or not
 
         """
-        
 
     def set_unique(self):
         """
@@ -166,7 +164,7 @@ class TextColumn:
         -> None
 
         """
-        
+       
 
     def set_empty(self):
         """
@@ -186,7 +184,7 @@ class TextColumn:
         -> None
 
         """
-        
+     
 
     def set_mode(self):
         """
@@ -206,7 +204,7 @@ class TextColumn:
         -> None
 
         """
-        
+       
 
     def set_whitespace(self):
         """
@@ -246,7 +244,7 @@ class TextColumn:
         -> None
 
         """
-        
+      
 
     def set_uppercase(self):
         """
@@ -286,7 +284,7 @@ class TextColumn:
         -> None
 
         """
-        
+      
 
     def set_digit(self):
         """
@@ -306,7 +304,7 @@ class TextColumn:
         -> None
 
         """
-        
+  
 
     def set_barchart(self):  
         """
@@ -326,7 +324,7 @@ class TextColumn:
         -> None
 
         """
-        
+       
       
     def set_frequent(self, end=20):
         """
@@ -347,7 +345,7 @@ class TextColumn:
         -> None
 
         """
-        
+       
 
     def get_summary(self):
         """
