@@ -1,5 +1,5 @@
 import streamlit as st
-from text_logics import TextColumn
+from tab_text.logics import TextColumn
 
 
 def display_tab_text_content(file_path=None, df=None):
