@@ -1,12 +1,17 @@
 import streamlit as st
+
 from tab_df.logics import Dataset
 
 def display_tab_df_content(file_path):
     # Create the Dataset object and set data
     dataset = Dataset(file_path)
-    dataset.set_data()
 
-    # Display the basic information
+    # Check if the dataframe is empty and display a message if so
+    if dataset.df is None or dataset.df.empty:
+        st.write("No columns to display. Please upload a dataset with data.")
+        return  # Exit the function if the dataframe is empty
+
+    # If the dataframe is not empty, proceed to display the data
     with st.expander("Dataset Summary", expanded=True):
         st.table(dataset.get_summary())
 
@@ -16,9 +21,10 @@ def display_tab_df_content(file_path):
 
     # Data exploration section
     with st.expander("Data Exploration", expanded=True):
-        row_count = st.slider("Select number of rows to display", 5, 50)
+        row_count = st.slider("Select number of rows to display", 5, 50, value=5)  # Added default value for slider
         display_option = st.radio("Choose rows to display", ["head", "tail", "sample"])
         
+        # Display the dataframe based on the user selection
         if display_option == "head":
             st.dataframe(dataset.get_head(row_count))
         elif display_option == "tail":
