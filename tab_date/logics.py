@@ -1,5 +1,6 @@
 import pandas as pd
 import altair as alt
+from datetime import datetime
 
 class DateColumn:
     """
@@ -44,7 +45,9 @@ class DateColumn:
         self.n_empty_1970 = None
         self.barchart = alt.Chart()
         self.frequent = pd.DataFrame(columns=['value', 'occurrence', 'percentage'])
-    
+        self.find_date_cols()
+
+
     def find_date_cols(self):
         """
         --------------------
@@ -64,7 +67,29 @@ class DateColumn:
         -> None
 
         """
+        if self.file_path is not None:
+            self.file_path.seek(0)
+            data_df = pd.read_csv(self.file_path, low_memory=False)
+
+        list_of_dt_txt_columns = []
+        for col in data_df.columns:
+            if data_df[col].dtype == 'object':
+                try:
+                    data_df[col] = pd.to_datetime(data_df[col], format='mixed')
+                    list_of_dt_txt_columns.append(col)
+                except ValueError as error:
+                    pass
         
+        if len(list_of_dt_txt_columns) == 0:
+            for col in data_df.columns:
+                if data_df[col].dtype == 'object':
+                    list_of_dt_txt_columns.append(col)
+
+
+        self.df = data_df
+        self.cols_list = list_of_dt_txt_columns
+
+
 
     def set_data(self, col_name):
         """
@@ -86,7 +111,35 @@ class DateColumn:
         --------------------
         -> None
         """
-        
+        try:
+            self.serie = self.df[col_name]
+            self.convert_serie_to_date()
+
+            if self.is_serie_none():
+                self.serie = self.df[col_name]
+
+            self.set_unique()
+            self.set_missing()
+            self.set_min()
+            self.set_max()
+            self.set_weekend()
+            self.set_weekday()
+            self.set_future()
+            self.set_empty_1900()
+            self.set_empty_1970()
+            self.set_barchart()
+            self.set_frequent()
+        except:
+            self.cols_list = None
+
+
+    def is_of_valid_datetime(self):
+        try:
+            res = pd.to_datetime(self.serie)
+            return True
+        except ValueError:
+            return False
+
 
     def convert_serie_to_date(self):
         """
@@ -106,6 +159,11 @@ class DateColumn:
         -> None
 
         """
+        try:
+            self.serie = pd.to_datetime(self.serie)
+        except ValueError:
+            self.serie = None
+
         
 
     def is_serie_none(self):
@@ -126,6 +184,10 @@ class DateColumn:
         -> (bool): Flag stating if the serie is empty or not
 
         """
+        if self.serie is None or self.serie.empty:
+            return True
+        else:
+            return False
         
 
     def set_unique(self):
@@ -146,6 +208,7 @@ class DateColumn:
         -> None
 
         """
+        self.n_unique = self.serie.nunique()
         
 
     def set_missing(self):
@@ -166,6 +229,7 @@ class DateColumn:
         -> None
 
         """
+        self.n_missing = self.serie.isnull().sum()
         
 
     def set_min(self):
@@ -186,7 +250,13 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.col_min = 'N/A'
+            else:
+                self.col_min = self.serie.min()
+        except:
+            self.col_min = 'N/A'
 
     def set_max(self):
         """
@@ -206,7 +276,13 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.col_max = 'N/A'
+            else:
+                self.col_max = self.serie.max()
+        except:
+            self.col_max = 'N/A'
 
     def set_weekend(self):
         """
@@ -226,7 +302,16 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.n_weekend = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                df['day_of_week'] = df['date_column'].dt.dayofweek
+                self.n_weekend  = len(df[df['day_of_week'].isin([5, 6])])
+        except:
+            self.n_weekend = 'N/A'
+
 
     def set_weekday(self):
         """
@@ -246,7 +331,15 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.n_weekday = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                df['day_of_week'] = df['date_column'].dt.dayofweek
+                self.n_weekday = len(df[df['day_of_week'].isin([0, 1, 2, 3, 4])])
+        except:
+            self.n_weekday = 'N/A'
 
     def set_future(self):
         """
@@ -266,6 +359,14 @@ class DateColumn:
         -> None
 
         """
+        try:
+            if self.is_serie_none():
+                self.n_future = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_future = len(df[df['date_column'] > datetime.now()])
+        except:
+             self.n_future = 'N/A'
         
     
     def set_empty_1900(self):
@@ -286,7 +387,17 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.n_empty_1900 = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_empty_1900 = len(df[df['date_column'] == pd.to_datetime('1900-01-01')])
+        except:
+            self.n_empty_1900 = 'N/A'
+
+        if self.is_of_valid_datetime() == False:
+            self.n_empty_1900 = 'N/A'
 
     def set_empty_1970(self):
         """
@@ -306,7 +417,17 @@ class DateColumn:
         -> None
 
         """
-        
+        try:
+            if self.is_serie_none():
+                self.n_empty_1970 = 'N/A'
+            else:
+                df = pd.DataFrame({'date_column': self.serie})
+                self.n_empty_1970 = len(df[df['date_column'] == pd.to_datetime('1970-01-01')])
+        except:
+            self.n_empty_1970 = 'N/A'
+
+        if self.is_of_valid_datetime() == False:
+            self.n_empty_1970 = 'N/A'
 
     def set_barchart(self):  
         """
@@ -326,6 +447,14 @@ class DateColumn:
         -> None
 
         """
+        axis = "date"
+        if self.is_of_valid_datetime() == False:
+            axis = "value"
+
+        df = pd.DataFrame({axis: self.serie})
+        df2 = df.groupby(axis).size().reset_index(name='number_of_records')
+        self.barchart = alt.Chart(df2).mark_bar().encode(x=axis, y="number_of_records")
+
         
       
     def set_frequent(self, end=20):
@@ -347,6 +476,12 @@ class DateColumn:
         -> None
 
         """
+        df = pd.DataFrame({'value': self.serie})
+        df2 = df.groupby('value').size().reset_index(name='occurrance')
+        total_count = df2['occurrance'].sum()
+        df2['percentage'] = df2['occurrance'] / total_count
+        df2 = df2.sort_values(by='percentage', ascending=False)
+        self.frequent = df2.head(end)
         
 
     def get_summary(self):
@@ -367,4 +502,27 @@ class DateColumn:
         -> (pd.DataFrame): Formatted dataframe to be displayed on the Streamlit app
 
         """
-        
+        summary_data = {
+            "Description": ["Number of Unique Values",
+                            "Number of Rows with Missing Values",
+                            "Number of Weekend Dates",
+                            "Number of Weekday Dates",
+                            "Number of Dates in the Future",
+                            "Number of Rows with 1900-01-01",
+                            "Number of Rows with 1970-01-01",
+                            "Minimum Value",
+                            "Maximum Value"
+                            ],
+
+            "Value": [self.n_unique,
+                      self.n_missing,
+                      self.n_weekend,
+                      self.n_weekday,
+                      self.n_future,
+                      self.n_empty_1900,
+                      self.n_empty_1970,
+                      self.col_min,
+                      self.col_max
+                      ]
+        }
+        return pd.DataFrame(summary_data)
