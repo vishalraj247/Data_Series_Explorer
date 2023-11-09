@@ -54,24 +54,31 @@ class Dataset:
         
         
     def set_df(self):
-        """
-        --------------------
-        Description
-        --------------------
-        -> set_df (method): Class method that will load the uploaded CSV file as Pandas DataFrame and store it as attribute (self.df) if it hasn't been provided before.
+        # If the DataFrame is already set or not empty, we don't need to read the file again
+        if not self.df is None and not self.df.empty:
+            return
 
-        --------------------
-        Parameters
-        --------------------
-        -> None
+        # Try to read the uploaded file directly using pandas
+        try:
+            # Check if file_path is an UploadedFile object
+            if hasattr(self.file_path, "read"):
+                # Read the file from the buffer
+                self.df = pd.read_csv(self.file_path)
+            else:
+                # It's a file path; proceed with the usual method
+                self.df = pd.read_csv(self.file_path)
+        except pd.errors.EmptyDataError:
+            # If the CSV is empty, set the DataFrame to None or an empty DataFrame
+            self.df = pd.DataFrame()
 
-        --------------------
-        Returns
-        --------------------
-        -> None
-
-        """
-        
+        # Update the rest of the data
+        self.set_columns()
+        self.set_dimensions()
+        self.set_duplicates()
+        self.set_missing()
+        self.set_numeric()
+        self.set_text()
+        self.set_table()
 
     def is_df_none(self):
         """
