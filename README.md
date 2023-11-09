@@ -1,4 +1,4 @@
-# Data Series Profiler Web App
+# Data Series Explorer Web App
 
 ## Authors
 Group 11: 
