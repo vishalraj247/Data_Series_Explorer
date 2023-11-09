@@ -1,30 +1,40 @@
 import streamlit as st
-import pandas as pd
+from tab_text.logics import TextColumn
 
-from text.logics import TextColumn
+
 def display_tab_text_content(file_path=None, df=None):
-    """
-    --------------------
-    Description
-    --------------------
-    -> display_tab_text_content (function): Function that will instantiate tab_text.logics.TextColumn class, save it into Streamlit session state and call its tab_text.logics.TextColumn.find_text_cols() method in order to find all text columns.
-    Then it will display a Streamlit select box with the list of text columns found.
-    Once the user select a text column from the select box, it will call the tab_text.logics.TextColumn.set_data() method in order to compute all the information to be displayed.
-    Then it will display a Streamlit Expander container with the following contents:
-    - the results of tab_text.logics.TextColumn.get_summary() as a Streamlit Table
-    - the graph from tab_text.logics.TextColumn.histogram using Streamlit.altair_chart()
-    - the results of tab_text.logics.TextColumn.frequent using Streamlit.write
- 
-    --------------------
-    Parameters
-    --------------------
-    -> file_path (str): File path to uploaded CSV file (optional)
-    -> df (pd.DataFrame): Loaded dataframe (optional)
+    text_column = TextColumn(file_path=file_path, df=df)
+    text_column.find_text_cols()
 
-    --------------------
-    Returns
-    --------------------
-    -> None
+    if not text_column.cols_list:
+        st.error('No text columns available')
+    else:
+        text_cols_list = [col for col in text_column.cols_list if text_column.df[col].dtype == 'object']
 
-    """
-    
+        if not text_cols_list:
+            st.error('No text columns available')
+        else:
+            selected_text_column = st.selectbox('Which text column do you want to explore', text_cols_list)
+
+            if selected_text_column:
+                text_column.set_data(selected_text_column)
+
+                with st.expander('Text Column', expanded=True):
+                    summary = text_column.get_summary()
+                    if summary is not None:
+                        st.table(text_column.get_summary())
+                    else:
+                        st.write('No summary table to display')
+
+                with st.expander('Bar Chart', expanded=True):
+                    if text_column.barchart:
+                        st.altair_chart(text_column.barchart, use_container_width=True)
+                    else:
+                        st.write('No Bar Chart')
+
+                with st.expander('Most Frequent Values', expanded=True):
+                    frequent = text_column.frequent
+                    if not frequent.empty:
+                        st.table(text_column.frequent)
+                    else:
+                        st.write('No frequency table to display')
