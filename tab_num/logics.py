@@ -138,13 +138,13 @@ class NumericColumn:
         if not self.is_serie_none():
             value_counts = self.serie.value_counts().head(end).reset_index()
             value_counts.columns = ['value', 'occurrence']
+            value_counts['value'] = value_counts['value'].astype(int)
             value_counts['percentage'] = (value_counts['occurrence'] / len(self.serie)) * 100
             
-            # Check if the value_counts DataFrame is empty before styling
             self.frequent_empty = value_counts.empty
             
-            # Using pandas' Styler to format the percentage column
             self.frequent = value_counts.style.format({
+                'value': '{:,.0f}',
                 'percentage': '{:,.2f}%'
             })
 
